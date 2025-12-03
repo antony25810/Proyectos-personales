@@ -1,0 +1,92 @@
+services:
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: sismo-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: sismos_db
+      MYSQL_USER: sismouser
+      MYSQL_PASSWORD: sismopassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Agregamos un volumen para tu esquema SQL inicializador
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sismo-network
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # Base de datos Neo4j
+  neo4j:
+    image: neo4j:4.4
+    container_name: sismo-neo4j
+    restart: always
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: 'yes'
+    ports:
+      - "7474:7474"  # Puerto para interfaz HTTP
+      - "7687:7687"  # Puerto para Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - sismo-network
+
+  # Backend Spring Boot
+  backend:
+    build:
+      context: ./sismo-deteccion
+      dockerfile: Dockerfile
+    container_name: sismo-backend
+    restart: always
+    depends_on:
+      - mysql
+      - neo4j
+    environment:
+      # Configuración de MySQL
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sismos_db?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: sismouser
+      SPRING_DATASOURCE_PASSWORD: sismopassword
+      # Configuración de Neo4j
+      SPRING_DATA_NEO4J_URI: bolt://neo4j:7687
+      SPRING_DATA_NEO4J_USERNAME: neo4j
+      SPRING_DATA_NEO4J_PASSWORD: password
+      # Configuración JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      # CORS para aplicaciones móviles
+      SPRING_WEB_CORS_ALLOWED_ORIGINS: "*"
+      SPRING_WEB_CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
+      SPRING_WEB_CORS_ALLOWED_HEADERS: "*"
+      SPRING_WEB_CORS_ALLOW_CREDENTIALS: "true"
+    ports:
+      - "8080:8080"
+    networks:
+      - sismo-network
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./sismos-frontend
+      dockerfile: Dockerfile
+    container_name: sismo-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - sismo-network
+
+volumes:
+  mysql_data:
+  neo4j_data:
+  neo4j_logs:
+
+networks:
+  sismo-network:
+    driver: bridge

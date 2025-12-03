@@ -1,0 +1,100 @@
+.propagation-container {
+    padding: 15px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .map-controls {
+    margin-bottom: 15px;
+  }
+  
+  .time-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .time-controls input[type="range"] {
+    flex: 1;
+    margin: 0 10px;
+  }
+  
+  .control-settings {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .control-settings label {
+    display: flex;
+    align-items: center;
+  }
+  
+  .control-settings input {
+    width: 60px;
+    margin-left: 8px;
+    padding: 4px;
+  }
+  
+  .control-btn {
+    padding: 6px 12px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .control-btn:hover {
+    background-color: #356ac3;
+  }
+  
+  .wave-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+  }
+  
+  .wave-item {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+  }
+  
+  .wave-color {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    border-radius: 50%;
+  }
+  
+  .earthquake-details {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  .propagation-info {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+  }
+  
+  .station-list {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .station-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+  }
