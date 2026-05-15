@@ -1,109 +1,104 @@
-# Sistema de Alerta y Visualización de Sismos - Gestión de Usuarios 
+<h1 align="center">👨‍💻 Portafolio de Proyectos Personales</h1>
 
-## Descripción del Proyecto
-Este es un proyecto de aplicación web de gestión de usuarios desarrollado con Spring Boot, que incluye funcionalidades de autenticación, registro, perfil de usuario y administración.
+<p align="center">
+  <em>Proyectos académicos y personales desarrollados para aprender, experimentar y demostrar habilidades en desarrollo de software.</em>
+</p>
 
-## Características Principales
-- Registro de usuarios
-- Autenticación con Spring Security
-- Gestión de roles (USER, ADMIN)
-- Perfil de usuario
-- Panel de administración para gestión de usuarios
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-46%25-3776AB?style=flat&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript-16%25-F7DF1E?style=flat&logo=javascript&logoColor=black" />
+  <img src="https://img.shields.io/badge/TypeScript-14%25-3178C6?style=flat&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/HTML-11%25-E34F26?style=flat&logo=html5&logoColor=white" />
+  <img src="https://img.shields.io/badge/Java-8%25-007396?style=flat&logo=java&logoColor=white" />
+  <img src="https://img.shields.io/badge/CSS-5%25-1572B6?style=flat&logo=css3&logoColor=white" />
+</p>
 
-## Requisitos Previos
-- Java 21
-- Maven
-- MySQL 8.0+
+---
 
-## Configuración del Entorno
+## 🧑‍💼 Sobre mí
 
-### 1. Base de Datos
-- Crear base de datos MySQL:
-  ```sql
-  CREATE DATABASE tarea2;
-  ```
+Soy un desarrollador en formación con interés en el desarrollo **fullstack**, la **inteligencia artificial** y los **sistemas backend**. Este repositorio reúne los proyectos que he construido con el objetivo de aplicar conocimientos reales, aprender nuevas tecnologías y demostrar mis capacidades técnicas.
 
-- Credenciales de base de datos (configuradas en `application.properties`):
-  - Usuario: `admin`
-  - Contraseña: `admin`
-  - Base de datos: `tarea2`
+Cada proyecto está diseñado con un enfoque práctico: arquitectura limpia, uso de tecnologías modernas y resolución de problemas concretos.
 
-### 2. Configuración de Base de Datos
-El proyecto incluye un `schema.sql` que se ejecutará automáticamente al iniciar la aplicación. Este script:
-- Crea la base de datos
-- Configura tablas de usuarios y roles
-- Inserta roles predeterminados (ROLE_ADMIN, ROLE_USER)
-- Crea un usuario de base de datos
+---
 
-### 3. Dependencias
-Las dependencias principales incluyen:
-- Spring Boot Web
-- Spring Security
-- Spring Data JPA
-- Thymeleaf
-- MySQL Connector
-- Bootstrap (WebJars)
+## 🗂️ Proyectos
 
-## Instalación y Ejecución
+### 🗺️ [Rutas IA — Sistema Inteligente de Planificación Turística](./Rutas_IA)
 
-### Clonar el Repositorio
-```bash
-git clone <URL_DEL_REPOSITORIO>
-cd HOLASPRING6CV3
-```
+> Sistema fullstack que genera itinerarios turísticos personalizados usando Inteligencia Artificial, algoritmos de búsqueda y APIs externas.
 
-### Compilar el Proyecto
-```bash
-mvn clean install
-```
+**Highlights técnicos:**
+- 🧠 Red neuronal MLP (PyTorch) para scoring de atracciones
+- 🔍 Algoritmos de búsqueda: **BFS** y **A\*** para exploración y optimización de rutas
+- 📊 Clustering **K-Means** para agrupación geográfica de atracciones por días
+- ⚙️ Motor de reglas con encadenamiento hacia adelante para personalización
+- 🌐 Integración con APIs externas: Google Places, Foursquare, OpenWeather
+- 🗺️ Frontend con mapas interactivos (Leaflet/OpenStreetMap)
 
-### Ejecutar la Aplicación
-```bash
-mvn spring-boot:run
-```
+**Stack:** Python · FastAPI · PyTorch · PostgreSQL + PostGIS · Redis · Next.js · TypeScript · Tailwind CSS · Docker
 
-## Acceso a la Aplicación
-- URL Base: `http://localhost:8080`
-- Páginas:
-  - Login: `/login`
-  - Registro: `/registro`
-  - Home: `/home`
-  - Perfil: `/perfil`
-  - Gestión de Usuarios (Admin): `/admin/gestion-usuarios`
+---
 
-## Usuarios Predeterminados
-El sistema se inicializa con roles de usuario. Puedes registrar nuevos usuarios desde la página de registro.
+### 🌍 [Sismo Detección — Sistema de Visualización de Sismos](./sismo-deteccion)
 
-## Pruebas
-Ejecutar pruebas unitarias:
-```bash
-mvn test
-```
+> Aplicación web para la visualización y análisis de datos sísmicos, con autenticación, gestión de roles y múltiples vistas de datos.
 
-## Seguridad
-- Contraseñas encriptadas con BCrypt
-- Roles de usuario (USER, ADMIN)
-- Protección de rutas según roles
+**Highlights técnicos:**
+- 📁 Carga y procesamiento de datos sísmicos desde archivos CSV
+- 🔐 Autenticación y autorización con Spring Security (roles USER / ADMIN)
+- 🕸️ Base de datos de grafos con **Neo4j** para modelado de relaciones
+- 🐳 Despliegue contenedorizado con Docker Compose
 
-## Tecnologías Utilizadas
-- Java 21
-- Spring Boot 3.4.2
-- Spring Security
-- Thymeleaf
-- MySQL
-- Bootstrap 5
+**Stack:** Java 21 · Spring Boot · Spring Security · React · MySQL · Neo4j · Bootstrap · Docker
 
-## Consideraciones de Seguridad
-- CSRF deshabilitado para simplicidad (ajustar en producción)
-- Validación de contraseñas
-- Manejo de errores personalizado
+---
 
-## Capturas de pantalla
-![image](https://github.com/user-attachments/assets/c7a48bff-90ba-4895-861f-49c47c811560)
+### 👤 [Gestión de Usuarios — Sistema de Autenticación con Spring Boot](./HOLASPRING6CV3)
 
-![image](https://github.com/user-attachments/assets/18522cc3-f3db-4bb6-a787-a0d2b832911d)
+> Aplicación web de gestión de usuarios con sistema completo de autenticación, registro, perfiles y administración.
 
-![image](https://github.com/user-attachments/assets/615e533b-c51c-40d1-8ee1-1aa85195d2b2)
+**Highlights técnicos:**
+- 🔒 Contraseñas encriptadas con **BCrypt**
+- 👥 Gestión de roles (USER / ADMIN) con protección de rutas
+- 🖥️ Interfaz con Thymeleaf y Bootstrap
+- 🗃️ Persistencia con Spring Data JPA + MySQL
 
+**Stack:** Java 21 · Spring Boot · Spring Security · Thymeleaf · MySQL · Maven · Bootstrap 5
 
+---
 
+## 🛠️ Tecnologías que manejo
+
+| Área | Tecnologías |
+|------|------------|
+| **Backend** | Python, Java, FastAPI, Spring Boot, Spring Security |
+| **Frontend** | React, Next.js, TypeScript, Tailwind CSS, HTML/CSS |
+| **Bases de datos** | MySQL, PostgreSQL, Neo4j, Redis |
+| **IA / ML** | PyTorch, algoritmos de búsqueda (BFS, A\*), K-Means, redes neuronales |
+| **DevOps** | Docker, Docker Compose |
+| **Herramientas** | Git, Maven, Gradle |
+
+---
+
+## 🚀 Próximos proyectos
+
+Este repositorio está en constante crecimiento. Algunos proyectos que tengo planeados:
+
+- 🔄 API REST con autenticación OAuth2 y JWT
+- 📦 Microservicios con comunicación asíncrona (message queues)
+- 📱 Aplicación móvil con React Native
+- 🤖 Proyecto de NLP / procesamiento de lenguaje natural
+
+---
+
+## 📬 Contacto
+
+Si tienes alguna pregunta sobre los proyectos o te interesa mi perfil profesional, no dudes en contactarme a través de GitHub.
+
+---
+
+<p align="center">
+  <em>Desarrollado con dedicación como parte de mi camino en el desarrollo de software 🚀</em>
+</p>
