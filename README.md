@@ -93,12 +93,6 @@ Este repositorio está en constante crecimiento. Algunos proyectos que tengo pla
 
 ---
 
-## 📬 Contacto
-
-Si tienes alguna pregunta sobre los proyectos o te interesa mi perfil profesional, no dudes en contactarme a través de GitHub.
-
----
-
 <p align="center">
   <em>Desarrollado con dedicación como parte de mi camino en el desarrollo de software 🚀</em>
 </p>
