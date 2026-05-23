@@ -1,7 +1,7 @@
 services:
   # Base de datos MySQL
   mysql:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: sismo-mysql
     restart: always
     environment:
@@ -21,7 +21,7 @@ services:
 
   # Base de datos Neo4j
   neo4j:
-    image: neo4j:4.4
+    image: neo4j:5
     container_name: sismo-neo4j
     restart: always
     environment:
@@ -58,11 +58,8 @@ services:
       # Configuración JPA
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
-      # CORS para aplicaciones móviles
-      SPRING_WEB_CORS_ALLOWED_ORIGINS: "*"
-      SPRING_WEB_CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
-      SPRING_WEB_CORS_ALLOWED_HEADERS: "*"
-      SPRING_WEB_CORS_ALLOW_CREDENTIALS: "true"
+      # CORS para clientes web confiables
+      APP_CORS_ALLOWED_ORIGIN_PATTERNS: "http://localhost:3000,http://localhost,http://frontend,http://frontend:80"
     ports:
       - "8080:8080"
     networks:

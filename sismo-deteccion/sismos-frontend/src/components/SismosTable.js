@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import API_URL from "../config";
 import "./SismoTable.css";
@@ -63,10 +63,10 @@ const SismosTable = () => {
         }
     };
 
-    const cargarSismos = () => {
+    const cargarSismos = useCallback((magnitud) => {
         setLoading(true);
         // Usar el endpoint de filtro por magnitud
-        const endpointURL = `${API_URL}/api/sismos/magnitud/${magnitudFiltro}`;
+        const endpointURL = `${API_URL}/api/sismos/magnitud/${magnitud}`;
         console.log("Obteniendo datos de:", endpointURL);
         
         axios.get(endpointURL)
@@ -80,18 +80,18 @@ const SismosTable = () => {
                 setError(`Error: ${error.message}`);
                 setLoading(false);
             });
-    }
+    }, []);
 
     useEffect(() => {
-        cargarSismos();
-    }, []); // Se ejecuta solo al montar el componente con el filtro por defecto
+        cargarSismos(5);
+    }, [cargarSismos]); // Se ejecuta solo al montar el componente con el filtro por defecto
 
     const handleFilterChange = (e) => {
         setMagnitudFiltro(e.target.value);
     }
 
     const aplicarFiltro = () => {
-        cargarSismos();
+        cargarSismos(magnitudFiltro);
     }
 
     if (loading) return <div style={styles.container}>Cargando datos de sismos...</div>;

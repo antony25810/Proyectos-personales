@@ -23,10 +23,6 @@ repositories {
 	mavenCentral()
 }
 
-ext {
-	set('springAiVersion', "1.0.0-M6")
-}
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-neo4j'
@@ -38,19 +34,11 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'mysql:mysql-connector-java:8.0.33'
-	implementation 'org.apache.commons:commons-csv:1.10.0'
-	implementation 'org.springframework.security:spring-security-core:6.4.4'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'org.apache.commons:commons-csv:1.14.1'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.apache.commons:commons-math3:3.6.1'
-	implementation 'org.locationtech.jts:jts-core:1.18.2'
-	implementation 'joda-time:joda-time:2.10.13'
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-	}
+	implementation 'org.locationtech.jts:jts-core:1.20.0'
 }
 
 tasks.named('test') {

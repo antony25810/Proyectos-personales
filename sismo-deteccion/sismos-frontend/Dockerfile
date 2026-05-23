@@ -1,5 +1,5 @@
 # Etapa de construcción
-FROM node:16-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 # Copia los archivos de configuración y dependencias
@@ -13,11 +13,11 @@ COPY . .
 RUN npm run build
 
 # Etapa de ejecución con Nginx
-FROM nginx:1.23-alpine
+FROM nginx:1.27-alpine
 WORKDIR /usr/share/nginx/html
 
 # Copia los archivos de la etapa de construcción
-COPY --from=build /app/build .
+COPY --from=build /app/dist .
 
 # Copia la configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf

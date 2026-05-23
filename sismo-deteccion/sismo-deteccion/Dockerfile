@@ -1,5 +1,5 @@
 # Etapa de construcción
-FROM gradle:7.6-jdk17 AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Copia los archivos de configuración de Gradle primero para aprovechar la caché
@@ -7,16 +7,16 @@ COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
 
 # Descarga las dependencias para mejorar la caché en reconstrucciones
-RUN gradle dependencies --no-daemon
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 # Copia el código fuente
 COPY src ./src
 
 # Construye la aplicación con Gradle
-RUN gradle build --no-daemon -x test
+RUN ./gradlew build --no-daemon -x test
 
 # Etapa de ejecución
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copia el JAR construido desde la etapa anterior

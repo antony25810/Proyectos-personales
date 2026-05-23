@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import axios from 'axios';
-import API_URL from "../config";
 
 // Velocidades de ondas sísmicas (km/s)
 const P_WAVE_VELOCITY = 6.0;  

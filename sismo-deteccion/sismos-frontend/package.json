@@ -3,36 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@react-google-maps/api": "^2.20.6",
-    "axios": "^1.8.4",
-    "cra-template-pwa": "2.0.0",
+    "@react-google-maps/api": "^2.20.8",
+    "axios": "^1.16.1",
     "leaflet": "^1.9.4",
-    "lucide-react": "^0.503.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-force-graph": "^1.47.6",
-    "react-force-graph-2d": "^1.27.1",
-    "react-force-graph-3d": "^1.26.1",
+    "lucide-react": "^1.16.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-force-graph-2d": "^1.29.1",
+    "react-force-graph-3d": "^1.29.1",
     "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.5.0",
-    "react-scripts": "5.0.1",
-    "three": "^0.176.0",
-    "three-spritetext": "^1.9.6",
-    "vis-data": "^7.1.9",
-    "vis-network": "^9.1.9",
-    "web-vitals": "^4.2.4"
+    "react-router-dom": "^7.15.1",
+    "three": "^0.184.0",
+    "three-spritetext": "^1.10.0",
+    "vis-data": "^8.0.4",
+    "vis-network": "^10.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "browserslist": {
     "production": [
@@ -46,10 +38,15 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8080",
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.5"
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.5.0",
+    "jsdom": "^27.2.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.3.0",
+    "vite": "^7.2.0",
+    "vitest": "^4.0.7"
   }
 }

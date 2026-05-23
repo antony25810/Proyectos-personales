@@ -1,7 +1,7 @@
 # Sistema de Visualización de Sismos
 
 ## Descripción del Proyecto
-Este es un proyecto de aplicación web el cual da varias opciones de visualización de datos sobre sismos el cual almacena los datos cargando un csv
+Proyecto full-stack para cargar, consultar y visualizar datos sísmicos con backend Spring Boot, frontend React y cliente móvil Expo.
 
 ## Características Principales
 - Registro de usuarios
@@ -9,21 +9,20 @@ Este es un proyecto de aplicación web el cual da varias opciones de visualizaci
 - Gestión de roles (USER, ADMIN)
 - Visualización de sismos
 - Panel de administración para gestión de usuarios (solo para administradores)
+- Mapa y simulación de propagación de ondas sísmicas
 
 ## Requisitos Previos
-- Java 21
-- Gradle
-- MySQL 8.0+
-- React
-- Docker
+- Java 17
+- Node.js 22+
+- npm 11+
+- Docker y Docker Compose
+- Android Studio (opcional, para build nativo móvil)
 
 ## Configuración del Entorno
 
 ### 1. Base de Datos
-- Crear base de datos MySQL:
-  ```sql
-  CREATE DATABASE sismos_db;
-  ```
+- Con Docker Compose, MySQL y Neo4j se levantan automáticamente.
+- Si ejecutas local sin Docker, crea la base `sismos_db` en MySQL.
 
 - Credenciales de base de datos (configuradas en `application.properties`):
   - Usuario: `sismouser`
@@ -37,14 +36,9 @@ El proyecto incluye un `init.sql` que se ejecutará automáticamente al iniciar 
 - Inserta roles predeterminados (ROLE_ADMIN, ROLE_USER)
 - Crea un usuario de base de datos
 
-### 3. Dependencias
-Las dependencias principales incluyen:
-- Spring Boot Web
-- Spring Security
-- Spring Data JPA
-- MySQL Connector
-- Bootstrap (WebJars)
-- Neo4j
+### 3. Variables y CORS
+- El backend usa `app.cors.allowed-origin-patterns` para definir orígenes permitidos con credenciales.
+- En Docker Compose se inyecta `APP_CORS_ALLOWED_ORIGIN_PATTERNS` para entornos de desarrollo local.
 
 ## Instalación y Ejecución
 
@@ -54,9 +48,31 @@ git clone <URL_DEL_REPOSITORIO>
 cd sismo-deteccion
 ```
 
-### Compilar y ejecutar el Proyecto
+### Opción A: Levantar todo con Docker
 ```bash
 docker-compose up --build
+```
+
+### Opción B: Ejecutar por módulos (local)
+
+#### Backend
+```bash
+cd sismo-deteccion
+./gradlew bootRun
+```
+
+#### Frontend web
+```bash
+cd sismos-frontend
+npm install
+npm start
+```
+
+#### App móvil (Expo)
+```bash
+cd sismo-mobile-expo
+npm install
+npm run start
 ```
 
 ## Acceso a la Aplicación
@@ -71,8 +87,16 @@ docker-compose up --build
 El sistema se inicializa con roles de usuario. Puedes registrar nuevos usuarios desde la página de registro.
 
 ## Pruebas
-Ejecutar pruebas unitarias:
+Comandos recomendados:
 ```bash
+cd sismo-deteccion
+./gradlew build -x test
+
+cd ../sismos-frontend
+npm run build
+
+cd ../sismo-mobile-expo
+npx expo-doctor
 ```
 
 ## Seguridad
@@ -80,19 +104,20 @@ Ejecutar pruebas unitarias:
 - Roles de usuario (USER, ADMIN)
 - Protección de rutas según roles
 - Aplicación basada en sesiones
+- CORS restringido por lista de orígenes permitidos
 
 ## Tecnologías Utilizadas
-- Java 21
-- Spring Boot 3.4.2
+- Java 17
+- Spring Boot 3.4.x
 - Spring Security
-- React
-- MySQL
-- Neo4j
-- Bootstrap 5
+- React 19
+- Expo SDK 55
+- MySQL 8.4
+- Neo4j 5
 - Docker
 
 ## Consideraciones de Seguridad
-- CSRF deshabilitado para simplicidad (ajustar en producción)
+- CSRF deshabilitado para simplificar integración API (revisar en producción)
 - Validación de contraseñas
 - Manejo de errores personalizado
 
