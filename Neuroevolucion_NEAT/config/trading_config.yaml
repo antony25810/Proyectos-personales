@@ -1,0 +1,86 @@
+# ============================================================
+# Configuración de Trading
+# ============================================================
+# Parámetros que simulan las condiciones REALES del mercado.
+# Sin esto, el backtesting sería irreal y el sistema haría overfitting.
+
+# --- Capital ---
+capital:
+  initial: 100000             # Capital inicial en MXN
+  currency: "MXN"             # Moneda base
+
+# --- Activos ---
+assets:
+  - symbol: "BTC-MXN"         # Bitcoin en pesos mexicanos
+    name: "Bitcoin/MXN"
+  - symbol: "ETH-MXN"         # Ethereum en pesos mexicanos
+    name: "Ethereum/MXN"
+
+# --- Costos de transacción ---
+# Estos costos simulan lo que cobran los exchanges reales (ej: Bitso)
+costs:
+  commission: 0.0065          # Comisión por operación: 0.65% (Bitso maker/taker promedio)
+  slippage: 0.001             # Deslizamiento: 0.1% (diferencia entre precio deseado y ejecutado)
+  # Nota: La comisión se aplica tanto al abrir como al cerrar la posición
+  # Costo total por trade round-trip ≈ 2 * (0.65% + 0.1%) = ~1.5%
+
+# --- Gestión de riesgo (rangos para evolución) ---
+# El genoma de cada individuo tendrá valores dentro de estos rangos
+risk:
+  stop_loss:
+    min: 0.01                 # Mínimo 1% de stop loss
+    max: 0.15                 # Máximo 15% de stop loss
+  take_profit:
+    min: 0.02                 # Mínimo 2% de take profit
+    max: 0.30                 # Máximo 30% de take profit
+  trailing_stop:
+    min: 0.005                # Mínimo 0.5% de trailing stop
+    max: 0.10                 # Máximo 10% de trailing stop
+  max_drawdown:
+    min: 0.10                 # Cortacircuito evolutivo mínimo
+    max: 0.30                 # Drawdown máximo permitido
+  position_size:
+    min: 0.05                 # Mínimo 5% del capital por operación
+    max: 0.50                 # Máximo 50% del capital por operación
+
+# --- Timeframes ---
+timeframes:
+  - interval: "1d"            # Barras diarias
+    name: "Diario"
+  - interval: "1h"            # Barras horarias
+    name: "Horario"
+
+# --- Walk-Forward ---
+walk_forward:
+  train_years: 3              # Años de datos para entrenamiento (3 → varias ventanas OOS desde 2019)
+  val_years: 1                # Años de datos para validación
+  test_years: 1               # Años de datos para prueba out-of-sample
+  step_years: 1               # Años que avanza la ventana entre iteraciones
+  mode: "sliding"             # "sliding" (ventana fija) o "expanding" (ventana crece)
+  validation_top_k: 5         # Validar varios candidatos fuertes por generación
+  # --- Control del sobreajuste a validación ---
+  # "min":  score = min(train, val)  → castiga candidatos con val "afortunado"
+  # "mean": score = (train + val) / 2
+  # "val":  score = val (comportamiento anterior, más optimista)
+  selection_metric: "min"
+  val_smoothing: 3            # Generaciones para suavizar la mediana de val (early stopping)
+
+# --- Umbrales de decisión ---
+decision:
+  confidence_threshold: 0.3   # Mínima confianza para abrir posición (output 2 de la red)
+  direction_threshold: 0.2    # |dirección| mínima para considerar LONG/SHORT
+  min_trades: 10              # Mínimo de operaciones para considerar un individuo válido
+  allow_short: false          # Bitso spot no permite cortos; true sólo con derivados/margen
+
+# --- Benchmarks de referencia (evaluados en cada ventana de test) ---
+benchmarks:
+  sma_fast: 50                # Cruce de medias: largo si SMA rápida > SMA lenta
+  sma_slow: 200
+
+# --- Fitness robusto ---
+fitness:
+  complexity_penalty_coeff: 0.004
+  max_annual_turnover: 24.0   # Capital rotado por año antes de penalizar
+  drawdown_soft_limit: 0.20   # A partir de 20% la penalización crece al cuadrado
+  training_subwindows: 3      # Exige desempeño en varios regímenes de train
+  worst_window_weight: 0.30   # Peso del peor subperiodo frente a la mediana

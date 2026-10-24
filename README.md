@@ -25,6 +25,22 @@ Cada proyecto está diseñado con un enfoque práctico: arquitectura limpia, uso
 
 ## 🗂️ Proyectos
 
+### 🧬 [Neuroevolución NEAT — Optimización Evolutiva de Trading Algorítmico](./Neuroevolucion_NEAT)
+
+> Sistema de computación evolutiva que optimiza simultáneamente topologías neuronales, pesos, selección de indicadores técnicos y gestión de riesgo para trading en criptomonedas (BTC-MXN).
+
+**Highlights técnicos:**
+- 🧬 Algoritmo genético **NEAT** a medida con especiación dinámica, innovación histórica y cruce homólogo
+- 📈 Evolución multiobjetivo conjunta: topología neuronal mínima, máscara de indicadores técnicos (~20 indicadores) y parámetros continuos de riesgo (Stop Loss, Take Profit, Trailing Stop, Drawdown)
+- 🛡️ **Walk-Forward Analysis (WFA)** causal (3 ventanas OOS) con selección conservadora $\\min(\\text{Train}, \\text{Val})$ y early stopping suavizado
+- ⏱️ Motor de backtest causal barra a barra ( \\to t+1$) con política intrabar conservadora y restricciones de mercado Spot (Bitso)
+- 📊 Benchmarks basales integrados (**Buy & Hold** y **Cruce SMA 50/200**) bajo idéntico modelo de costos y comisiones
+- 🧪 Suite automatizada con 17 pruebas unitarias y de regresión en Pytest (100% aprobadas)
+
+**Stack:** Python 3.13 · NumPy · Pandas · PyArrow · NEAT · Finanzas Cuantitativas · PyYAML · Matplotlib · Seaborn · Pytest
+
+---
+
 ### 🗺️ [Rutas IA — Sistema Inteligente de Planificación Turística](./Rutas_IA)
 
 > Sistema fullstack que genera itinerarios turísticos personalizados usando Inteligencia Artificial, algoritmos de búsqueda y APIs externas.
@@ -76,7 +92,7 @@ Cada proyecto está diseñado con un enfoque práctico: arquitectura limpia, uso
 | **Backend** | Python, Java, FastAPI, Spring Boot, Spring Security |
 | **Frontend** | React, Next.js, TypeScript, Tailwind CSS, HTML/CSS |
 | **Bases de datos** | MySQL, PostgreSQL, Neo4j, Redis |
-| **IA / ML** | PyTorch, algoritmos de búsqueda (BFS, A\*), K-Means, redes neuronales |
+| **IA / ML** | NEAT (Neuroevolución), Algoritmos genéticos, PyTorch, algoritmos de búsqueda (BFS, A\*), K-Means, redes neuronales |
 | **DevOps** | Docker, Docker Compose |
 | **Herramientas** | Git, Maven, Gradle |
 
