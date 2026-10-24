@@ -30,7 +30,7 @@
         "expo-maps",
         {
           "config": {
-            "googleMapsApiKey": "AIzaSyD8b1k2Z3X9Y4z5F6G7H8J9K0L1M2N3O4P"
+            "googleMapsApiKey": "Your api key"
           }
         }
       ],
