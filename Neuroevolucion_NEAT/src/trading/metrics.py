@@ -117,12 +117,12 @@ def compute_metrics(
         std_ret = returns.std()
         sharpe_ratio = float((mean_ret / std_ret) * np.sqrt(ann_factor))
 
-        # Sortino Ratio (solo volatilidad de retornos negativos)
-        downside_returns = returns[returns < 0]
-        if len(downside_returns) < 2 or downside_returns.std() == 0:
+        # Sortino Ratio (Target Downside Deviation con T=0 sobre todas las barras)
+        downside_diff = np.minimum(0.0, returns.values)
+        downside_std = float(np.sqrt(np.mean(downside_diff ** 2)))
+        if downside_std < 1e-8:
             sortino_ratio = sharpe_ratio
         else:
-            downside_std = downside_returns.std()
             sortino_ratio = float((mean_ret / downside_std) * np.sqrt(ann_factor))
 
     # Maximo Drawdown

@@ -148,7 +148,7 @@ class Backtester:
         equity_history = []
         peak_equity = self.initial_capital
         trading_halted = False
-        pending_type = PositionType.CASH
+        pending_type: Optional[PositionType] = None
         pending_size = 0.0
 
         params = genome.trading_params
@@ -173,40 +173,54 @@ class Backtester:
                     risk_exit_this_bar = True
 
             # 2. Ejecutar en la apertura la señal calculada al cierre anterior.
-            desired_type = (
-                PositionType.CASH if trading_halted else pending_type
-            )
-            if (
-                current_position is not None
-                and current_position.position_type != desired_type
-            ):
-                trade = current_position.close(open_p, date, "signal")
-                trades.append(trade)
-                current_capital += trade.pnl
-                current_position = None
+            if trading_halted:
+                # Cortacircuito por Max Drawdown: liquidar inmediatamente
+                if current_position is not None:
+                    trade = current_position.close(open_p, date, "max_drawdown")
+                    trades.append(trade)
+                    current_capital += trade.pnl
+                    current_position = None
+            elif pending_type is not None:
+                # Orden activa recibida (CASH, LONG o SHORT)
+                if pending_type == PositionType.CASH:
+                    # Salida activa a efectivo (convicción bajista en spot)
+                    if current_position is not None:
+                        trade = current_position.close(open_p, date, "signal")
+                        trades.append(trade)
+                        current_capital += trade.pnl
+                        current_position = None
+                else:
+                    # pending_type es LONG o SHORT
+                    if (
+                        current_position is not None
+                        and current_position.position_type != pending_type
+                    ):
+                        trade = current_position.close(open_p, date, "signal")
+                        trades.append(trade)
+                        current_capital += trade.pnl
+                        current_position = None
 
-            if (
-                current_position is None
-                and desired_type != PositionType.CASH
-                and current_capital > 0
-                and not risk_exit_this_bar
-                and not trading_halted
-            ):
-                frac = params.position_size * np.clip(pending_size, 0.2, 1.0)
-                trade_capital = current_capital * frac
+                    if (
+                        current_position is None
+                        and current_capital > 0
+                        and not risk_exit_this_bar
+                    ):
+                        frac = params.position_size * np.clip(pending_size, 0.2, 1.0)
+                        trade_capital = current_capital * frac
 
-                if trade_capital >= 100.0:
-                    current_position = Position(
-                        position_type=desired_type,
-                        entry_price=open_p,
-                        entry_time=date,
-                        capital=trade_capital,
-                        commission=self.commission,
-                        slippage=self.slippage,
-                        stop_loss_pct=params.stop_loss,
-                        take_profit_pct=params.take_profit,
-                        trailing_stop_pct=params.trailing_stop
-                    )
+                        if trade_capital >= 100.0:
+                            current_position = Position(
+                                position_type=pending_type,
+                                entry_price=open_p,
+                                entry_time=date,
+                                capital=trade_capital,
+                                commission=self.commission,
+                                slippage=self.slippage,
+                                stop_loss_pct=params.stop_loss,
+                                take_profit_pct=params.take_profit,
+                                trailing_stop_pct=params.trailing_stop
+                            )
+            # Si pending_type is None: HOLD. Se mantiene la posición o se permanece en CASH.
 
             # 3. Evaluar el rango intrabar con prioridad conservadora.
             if current_position is not None:
@@ -253,11 +267,12 @@ class Backtester:
                     network_outputs[i]
                 )
 
-        # 4. Al finalizar los datos, cerrar cualquier posicion restante
+        # 6. Al finalizar los datos, cerrar cualquier posicion restante
         if current_position is not None:
             final_date = dates[-1]
             final_close = closes[-1]
-            trade = current_position.close(final_close, final_date, "end_of_data")
+            exit_reason = "max_drawdown" if trading_halted else "end_of_data"
+            trade = current_position.close(final_close, final_date, exit_reason)
             trades.append(trade)
             current_capital += trade.pnl
             equity_history[-1] = current_capital
@@ -294,16 +309,27 @@ class Backtester:
     def _decode_signal(
         self,
         outputs: np.ndarray
-    ) -> tuple[PositionType, float]:
-        """Convierte las salidas de red en una orden para la barra siguiente."""
+    ) -> tuple[Optional[PositionType], float]:
+        """
+        Convierte las salidas de red en una orden para la barra siguiente.
+
+        Returns
+        -------
+        tuple[Optional[PositionType], float]
+            - PositionType.LONG: Señal alcista con convicción
+            - PositionType.SHORT: Señal bajista con convicción (en futuros / allow_short=True)
+            - PositionType.CASH: Orden activa de salida a efectivo (convicción bajista en spot)
+            - None: Zona neutral o indecisión (confianza baja) -> HOLD
+        """
         direction_signal, confidence_signal, size_signal = outputs
         if confidence_signal < self.confidence_threshold:
-            return PositionType.CASH, float(size_signal)
+            return None, float(size_signal)
         if direction_signal > self.direction_threshold:
             return PositionType.LONG, float(size_signal)
         if direction_signal < -self.direction_threshold:
             if self.allow_short:
                 return PositionType.SHORT, float(size_signal)
-            # Spot: la señal bajista significa "salir / no estar comprado".
+            # Spot: conviccion bajista significa orden activa de salir a efectivo.
             return PositionType.CASH, float(size_signal)
-        return PositionType.CASH, float(size_signal)
+        # Zona neutral [-direction_threshold, +direction_threshold] -> HOLD
+        return None, float(size_signal)

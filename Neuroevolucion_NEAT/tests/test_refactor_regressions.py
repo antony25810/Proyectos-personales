@@ -159,7 +159,8 @@ def test_signal_executes_at_next_open(monkeypatch):
     opens[6] = 110.0
     closes[6] = 110.0
     df = make_prices(opens, closes)
-    patch_network(monkeypatch, signal_outputs(n, long_bars=[5]))
+    # Barra 5: compra. Barra 6: orden activa de venta (ejecuta en apertura de la 7).
+    patch_network(monkeypatch, signal_outputs(n, long_bars=[5], short_bars=[6]))
 
     _, _, _, trades = _backtester().evaluate_genome(
         make_genome(), df, ["ind0", "ind1"]
@@ -170,7 +171,7 @@ def test_signal_executes_at_next_open(monkeypatch):
     # La señal del cierre de la barra 5 se ejecuta en la APERTURA de la 6.
     assert trade.entry_time == df.index[6]
     assert trade.entry_price == pytest.approx(110.0)
-    # La barra 6 ya no tiene señal: se sale en la apertura de la 7.
+    # La orden de venta del cierre de la barra 6 se sale en la apertura de la 7.
     assert trade.exit_time == df.index[7]
     assert trade.exit_reason == "signal"
 

@@ -136,12 +136,12 @@ class Position:
             self.stop_loss_price = self.entry_price * (1.0 - stop_loss_pct)
             self.take_profit_price = self.entry_price * (1.0 + take_profit_pct)
             self.peak_price = self.entry_price
-            self.trailing_stop_price = self.peak_price * (1.0 - trailing_stop_pct)
+            self.trailing_stop_price = self.stop_loss_price  # Inicia protegiendo igual que el SL
         else:  # SHORT
             self.stop_loss_price = self.entry_price * (1.0 + stop_loss_pct)
             self.take_profit_price = self.entry_price * (1.0 - take_profit_pct)
             self.peak_price = self.entry_price  # para short, peak es el minimo precio alcanzado
-            self.trailing_stop_price = self.peak_price * (1.0 + trailing_stop_pct)
+            self.trailing_stop_price = self.stop_loss_price  # Inicia protegiendo igual que el SL
 
     def update_bar(self, high: float, low: float, close: float) -> Optional[str]:
         """
@@ -268,7 +268,7 @@ class Position:
 
     def current_unrealized_pnl(self, current_price: float) -> tuple[float, float]:
         """
-        Calcula el PnL no realizado (flotante) al precio actual.
+        Calcula el PnL no realizado (flotante) al precio actual descontando comision y slippage de salida.
 
         Returns
         -------
@@ -276,14 +276,16 @@ class Position:
             (pnl_monto_mxn, pnl_porcentual)
         """
         if self.position_type == PositionType.LONG:
-            gross_val = self.size * current_price
+            exit_price = current_price * (1.0 - self.slippage)
+            gross_val = self.size * exit_price
             exit_commission = gross_val * self.commission
         else:
+            exit_price = current_price * (1.0 + self.slippage)
             gross_val = (
                 self.net_capital
-                + (self.entry_price - current_price) * self.size
+                + (self.entry_price - exit_price) * self.size
             )
-            exit_commission = self.size * current_price * self.commission
+            exit_commission = self.size * exit_price * self.commission
 
         net_val = gross_val - exit_commission
         pnl = net_val - self.capital_allocated
