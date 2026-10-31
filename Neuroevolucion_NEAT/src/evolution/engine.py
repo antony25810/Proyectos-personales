@@ -374,6 +374,10 @@ class WalkForwardEngine:
             with open(win_folder / "summary.json", "w", encoding="utf-8") as f:
                 json.dump(win_data, f, indent=2, default=_json_default)
 
+            # Guardar mejor genoma de la ventana en JSON
+            with open(win_folder / "best_genome.json", "w", encoding="utf-8") as f:
+                json.dump(best_genome.to_dict(), f, indent=2, default=_json_default)
+
         # 6. Calcular Equidad OOS global encadenada
         full_oos_equity = chain_equities(oos_equities, initial_cap)
         global_oos_metrics = compute_metrics(

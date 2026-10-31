@@ -92,6 +92,29 @@ class ConnectionGene:
             disabled_by_indicator=self.disabled_by_indicator
         )
 
+    def to_dict(self) -> dict:
+        """Serializa el gen de conexion a diccionario."""
+        return {
+            "in_node": self.in_node,
+            "out_node": self.out_node,
+            "weight": self.weight,
+            "enabled": self.enabled,
+            "innovation": self.innovation,
+            "disabled_by_indicator": self.disabled_by_indicator,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ConnectionGene":
+        """Reconstruye un gen de conexion desde un diccionario."""
+        return cls(
+            in_node=int(data["in_node"]),
+            out_node=int(data["out_node"]),
+            weight=float(data["weight"]),
+            enabled=bool(data["enabled"]),
+            innovation=int(data["innovation"]),
+            disabled_by_indicator=bool(data.get("disabled_by_indicator", False)),
+        )
+
 
 @dataclass
 class NodeGene:
@@ -118,6 +141,25 @@ class NodeGene:
             node_type=self.node_type,
             activation=self.activation,
             bias=self.bias
+        )
+
+    def to_dict(self) -> dict:
+        """Serializa el gen de nodo a diccionario."""
+        return {
+            "node_id": self.node_id,
+            "node_type": self.node_type,
+            "activation": self.activation,
+            "bias": self.bias,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "NodeGene":
+        """Reconstruye un gen de nodo desde un diccionario."""
+        return cls(
+            node_id=int(data["node_id"]),
+            node_type=str(data["node_type"]),
+            activation=str(data["activation"]),
+            bias=float(data.get("bias", 0.0)),
         )
 
 
@@ -159,6 +201,16 @@ class TradingParams:
             "max_drawdown": self.max_drawdown,
             "position_size": self.position_size,
         }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TradingParams":
+        return cls(
+            stop_loss=float(data.get("stop_loss", 0.05)),
+            take_profit=float(data.get("take_profit", 0.10)),
+            trailing_stop=float(data.get("trailing_stop", 0.03)),
+            max_drawdown=float(data.get("max_drawdown", 0.20)),
+            position_size=float(data.get("position_size", 0.20)),
+        )
 
     def distance(self, other: "TradingParams") -> float:
         """
@@ -544,6 +596,78 @@ class Genome:
         new.adjusted_fitness = self.adjusted_fitness
         new.species_id = self.species_id
         return new
+
+    def to_dict(self) -> dict:
+        """Serializa el genoma completo a un diccionario para JSON."""
+        return {
+            "genome_id": self.genome_id,
+            "num_inputs": self.num_inputs,
+            "num_outputs": self.num_outputs,
+            "fitness": self.fitness,
+            "adjusted_fitness": self.adjusted_fitness,
+            "species_id": self.species_id,
+            "trading_params": self.trading_params.to_dict(),
+            "indicator_mask": dict(self.indicator_mask),
+            "nodes": {
+                str(node_id): node.to_dict()
+                for node_id, node in sorted(self.nodes.items())
+            },
+            "connections": {
+                str(innov): conn.to_dict()
+                for innov, conn in sorted(self.connections.items())
+            },
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Genome":
+        """Reconstruye un objeto Genome a partir de un diccionario."""
+        genome = cls(
+            genome_id=int(data["genome_id"]),
+            num_inputs=int(data.get("num_inputs", 18)),
+            num_outputs=int(data.get("num_outputs", 3)),
+        )
+        genome.fitness = (
+            float(data["fitness"]) if data.get("fitness") is not None else None
+        )
+        genome.adjusted_fitness = (
+            float(data["adjusted_fitness"])
+            if data.get("adjusted_fitness") is not None else None
+        )
+        genome.species_id = (
+            int(data["species_id"]) if data.get("species_id") is not None else None
+        )
+
+        if "trading_params" in data:
+            genome.trading_params = TradingParams.from_dict(data["trading_params"])
+
+        if "indicator_mask" in data:
+            genome.indicator_mask = {
+                str(k): bool(v) for k, v in data["indicator_mask"].items()
+            }
+
+        if "nodes" in data:
+            nodes_data = data["nodes"]
+            if isinstance(nodes_data, dict):
+                genome.nodes = {
+                    int(k): NodeGene.from_dict(v) for k, v in nodes_data.items()
+                }
+            elif isinstance(nodes_data, list):
+                genome.nodes = {
+                    int(n["node_id"]): NodeGene.from_dict(n) for n in nodes_data
+                }
+
+        if "connections" in data:
+            conns_data = data["connections"]
+            if isinstance(conns_data, dict):
+                genome.connections = {
+                    int(k): ConnectionGene.from_dict(v) for k, v in conns_data.items()
+                }
+            elif isinstance(conns_data, list):
+                genome.connections = {
+                    int(c["innovation"]): ConnectionGene.from_dict(c) for c in conns_data
+                }
+
+        return genome
 
     def summary(self) -> dict:
         """Resumen del genoma para logging/debug."""

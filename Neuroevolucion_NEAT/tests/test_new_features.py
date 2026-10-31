@@ -229,3 +229,72 @@ def test_max_drawdown_circuit_breaker_exit_reason_and_unrealized_slippage(monkey
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "max_drawdown"
+
+
+def test_genome_to_dict_and_from_dict_roundtrip():
+    """to_dict() y from_dict() preservan exactamente la topologia, riesgo y mascara del genoma."""
+    import json
+    from src.neat.network import FeedForwardNetwork
+
+    original = make_genome(
+        num_inputs=4,
+        stop_loss=0.04,
+        take_profit=0.12,
+        trailing_stop=0.02,
+        max_drawdown=0.18,
+        position_size=0.25,
+    )
+    original.fitness = 1.456
+    original.adjusted_fitness = 0.728
+    original.species_id = 3
+
+    # Serializar a dict y convertir a JSON string y de vuelta a dict
+    as_dict = original.to_dict()
+    json_str = json.dumps(as_dict)
+    loaded_dict = json.loads(json_str)
+
+    restored = Genome.from_dict(loaded_dict)
+
+    assert restored.genome_id == original.genome_id
+    assert restored.num_inputs == original.num_inputs
+    assert restored.num_outputs == original.num_outputs
+    assert restored.fitness == pytest.approx(original.fitness)
+    assert restored.adjusted_fitness == pytest.approx(original.adjusted_fitness)
+    assert restored.species_id == original.species_id
+    assert restored.indicator_mask == original.indicator_mask
+
+    # Parametros de trading
+    tp = restored.trading_params
+    assert tp.stop_loss == pytest.approx(original.trading_params.stop_loss)
+    assert tp.take_profit == pytest.approx(original.trading_params.take_profit)
+    assert tp.trailing_stop == pytest.approx(original.trading_params.trailing_stop)
+    assert tp.max_drawdown == pytest.approx(original.trading_params.max_drawdown)
+    assert tp.position_size == pytest.approx(original.trading_params.position_size)
+
+    # Nodos y conexiones
+    assert len(restored.nodes) == len(original.nodes)
+    for nid, node in original.nodes.items():
+        assert nid in restored.nodes
+        r_node = restored.nodes[nid]
+        assert r_node.node_type == node.node_type
+        assert r_node.activation == node.activation
+        assert r_node.bias == pytest.approx(node.bias)
+
+    assert len(restored.connections) == len(original.connections)
+    for innov, conn in original.connections.items():
+        assert innov in restored.connections
+        r_conn = restored.connections[innov]
+        assert r_conn.in_node == conn.in_node
+        assert r_conn.out_node == conn.out_node
+        assert r_conn.weight == pytest.approx(conn.weight)
+        assert r_conn.enabled == conn.enabled
+        assert r_conn.disabled_by_indicator == conn.disabled_by_indicator
+
+    # Red neuronal activada desde ambos genomas produce exactamente los mismos outputs
+    net_orig = FeedForwardNetwork.from_genome(original)
+    net_rest = FeedForwardNetwork.from_genome(restored)
+
+    inputs = np.array([[0.5, -0.2, 0.1, 0.9]])
+    out_orig = net_orig.activate_batch(inputs)
+    out_rest = net_rest.activate_batch(inputs)
+    assert np.allclose(out_orig, out_rest)
