@@ -299,7 +299,7 @@ def mutate_add_node(
 
     # Obtener IDs del tracker (cache por generacion)
     new_node_id, innov_in, innov_out = tracker.get_node_innovation(
-        conn.innovation, generation
+        conn.innovation, generation, conn.in_node, conn.out_node
     )
 
     if new_node_id not in genome.nodes:

@@ -22,6 +22,7 @@ import pytest
 
 from src.data.downloader import DataDownloader
 from src.neat.genome import Genome
+from src.neat.innovation import InnovationTracker
 from src.neat.population import Population
 from src.neat.reproduction import mutate_indicator_mask
 from src.neat.species import Species, SpeciationEngine
@@ -262,3 +263,25 @@ def test_btc_mxn_keeps_weekends(monkeypatch, tmp_path):
     expected = df_usd.loc[saturday, "Close"] * df_fx.loc[friday, "Close"]
     # El sabado usa el ultimo tipo de cambio conocido (viernes), nunca uno futuro.
     assert out.loc[saturday, "Close"] == pytest.approx(expected)
+
+
+def test_node_split_connection_innovations_consistency():
+    """Verifica que al dividir una conexion, los nuevos endpoints queden registrados en el tracker."""
+    tracker = InnovationTracker()
+    tracker.set_node_counter(23)  # 20 inputs (0..19), 3 outputs (20..22)
+    # Registrar conexion 14 -> 20
+    conn_innov = tracker.get_connection_innovation(14, 20, generation=0)
+
+    # Dividir conexion 14 -> 20 creando nodo 23
+    new_node_id, innov_in, innov_out = tracker.get_node_innovation(
+        conn_innov, generation=1, in_node=14, out_node=20
+    )
+    assert new_node_id == 23
+
+    # get_connection_innovation para 14 -> 23 debe retornar innov_in (no un numero nuevo)
+    assert tracker.get_connection_innovation(14, 23, generation=2) == innov_in
+    assert tracker.get_connection_innovation(23, 20, generation=2) == innov_out
+
+    # register_connection_innovation no debe lanzar error
+    tracker.register_connection_innovation(14, 23, innov_in)
+    tracker.register_connection_innovation(23, 20, innov_out)

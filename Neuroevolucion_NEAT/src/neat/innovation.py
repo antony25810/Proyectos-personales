@@ -36,6 +36,7 @@ toda la corrida, aunque reaparezca muchas generaciones despues.
 """
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 
 @dataclass
@@ -227,7 +228,9 @@ class InnovationTracker:
     def get_node_innovation(
         self,
         connection_innov: int,
-        generation: int
+        generation: int,
+        in_node: Optional[int] = None,
+        out_node: Optional[int] = None
     ) -> tuple[int, int, int]:
         """
         Obtiene innovation numbers para una mutacion "agregar nodo".
@@ -247,6 +250,10 @@ class InnovationTracker:
             Innovation number de la conexion que se esta dividiendo
         generation : int
             Generacion actual
+        in_node : int, opcional
+            ID del nodo de entrada de la conexion que se divide
+        out_node : int, opcional
+            ID del nodo de salida de la conexion que se divide
 
         Returns
         -------
@@ -258,6 +265,12 @@ class InnovationTracker:
         if connection_innov in self._split_innovations:
             return self._split_innovations[connection_innov]
 
+        # Si no se proveyeron in_node/out_node, buscarlos en el mapeo de endpoints
+        if in_node is None or out_node is None:
+            endpoints = self._innovation_endpoints.get(connection_innov)
+            if endpoints is not None:
+                in_node, out_node = endpoints
+
         # Nuevo nodo
         new_node_id = self.get_node_id()
 
@@ -267,6 +280,13 @@ class InnovationTracker:
         self._global_counter += 1
         innov_new_to_out = self._global_counter
 
+        # Registrar de forma persistente en los mapeos de conexiones del tracker
+        if in_node is not None and out_node is not None:
+            self._connection_innovations[(in_node, new_node_id)] = innov_in_to_new
+            self._innovation_endpoints[innov_in_to_new] = (in_node, new_node_id)
+            self._connection_innovations[(new_node_id, out_node)] = innov_new_to_out
+            self._innovation_endpoints[innov_new_to_out] = (new_node_id, out_node)
+
         # Guardar permanentemente: una misma division es homologa.
         result = (new_node_id, innov_in_to_new, innov_new_to_out)
         self._split_innovations[connection_innov] = result
@@ -275,7 +295,7 @@ class InnovationTracker:
         self._history.append(InnovationRecord(
             innovation_number=innov_in_to_new,
             mutation_type="node_split_in",
-            in_node=-1,
+            in_node=in_node if in_node is not None else -1,
             out_node=new_node_id,
             generation=generation
         ))
@@ -283,7 +303,7 @@ class InnovationTracker:
             innovation_number=innov_new_to_out,
             mutation_type="node_split_out",
             in_node=new_node_id,
-            out_node=-1,
+            out_node=out_node if out_node is not None else -1,
             generation=generation
         ))
 
